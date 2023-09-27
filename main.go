@@ -1,17 +1,30 @@
 package main
 
-// TODO: iac Lambda Store by plumi
+// TODO: iac upstash Store by plumi
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/shoet/go-cli-with-kvs/config"
+	"github.com/shoet/go-cli-with-kvs/store"
 )
 
 func main() {
-	getCmd := NewGetCommand()
-	setCmd := NewSetCommand()
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("failed to new config: %v", err)
+	}
+	kvs, err := store.NewRedisKVS(cfg)
+	if err != nil {
+		log.Fatalf("failed to new redis kvs: %v", err)
+	}
+
+	getCmd := NewGetCommand(kvs)
+	setCmd := NewSetCommand(kvs)
 	cmds := []Command{getCmd, setCmd}
 
 	if err := ExecSubCommand(cmds); err != nil {
@@ -42,16 +55,18 @@ type Command interface {
 }
 
 type GetCommand struct {
+	KVS     KVS
 	FlagSet *flag.FlagSet
 	Key     *string
 }
 
-func NewGetCommand() *GetCommand {
+func NewGetCommand(kvs KVS) *GetCommand {
 	cmd := flag.NewFlagSet("get", flag.ExitOnError)
 	key := cmd.String("key", "", "get key")
 	return &GetCommand{
 		FlagSet: cmd,
 		Key:     key,
+		KVS:     kvs,
 	}
 }
 
@@ -59,9 +74,11 @@ func (g *GetCommand) Name() string {
 	return g.FlagSet.Name()
 }
 func (g *GetCommand) RunCommand() error {
-	fmt.Println("run get")
-	fmt.Printf("set key: %s", *g.Key)
-	// TODO: kvs
+	val, err := g.KVS.Get(context.Background(), *g.Key)
+	if err != nil {
+		return fmt.Errorf("failed to get value: %w", err)
+	}
+	fmt.Println(val)
 	return nil
 }
 func (g *GetCommand) Parse() error {
@@ -72,9 +89,10 @@ type SetCommand struct {
 	FlagSet *flag.FlagSet
 	Key     *string
 	Value   *string
+	KVS     KVS
 }
 
-func NewSetCommand() *SetCommand {
+func NewSetCommand(kvs KVS) *SetCommand {
 	cmd := flag.NewFlagSet("set", flag.ExitOnError)
 	key := cmd.String("key", "", "set key")
 	value := cmd.String("value", "", "set value")
@@ -82,6 +100,7 @@ func NewSetCommand() *SetCommand {
 		FlagSet: cmd,
 		Key:     key,
 		Value:   value,
+		KVS:     kvs,
 	}
 }
 
@@ -91,9 +110,16 @@ func (s *SetCommand) Name() string {
 func (s *SetCommand) RunCommand() error {
 	fmt.Println("executed set")
 	fmt.Printf("set key: %s, value: %s", *s.Key, *s.Value)
-	// TODO: kvs
+	if err := s.KVS.Set(context.Background(), *s.Key, *s.Value); err != nil {
+		return fmt.Errorf("failed to set value: %w", err)
+	}
 	return nil
 }
 func (s *SetCommand) Parse() error {
 	return s.FlagSet.Parse(os.Args[2:])
+}
+
+type KVS interface {
+	Get(ctx context.Context, key string) (string, error)
+	Set(ctx context.Context, key string, value interface{}) error
 }
