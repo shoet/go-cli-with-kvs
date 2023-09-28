@@ -1,7 +1,5 @@
 package main
 
-// TODO: iac upstash Store by plumi
-
 import (
 	"context"
 	"flag"
