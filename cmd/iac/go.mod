@@ -1,11 +1,9 @@
-module github.com/shoet/go-cli-with-kvs
+module upstash-iac
 
 go 1.19
 
 require (
-	github.com/caarlos0/env/v9 v9.0.0
-	github.com/pulumi/pulumi/sdk/v3 v3.86.0
-	github.com/redis/go-redis/v9 v9.2.1
+	github.com/pulumi/pulumi/sdk/v3 v3.84.0
 	github.com/upstash/pulumi-upstash/sdk v0.2.0
 )
 
@@ -19,14 +17,12 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
-	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.16.1 // indirect
 	github.com/charmbracelet/bubbletea v0.24.2 // indirect
 	github.com/charmbracelet/lipgloss v0.7.1 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/djherbis/times v1.5.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
